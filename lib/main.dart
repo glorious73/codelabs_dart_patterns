@@ -5,6 +5,23 @@ void main() {
   runApp(const DocumentApp());
 }
 
+String formatDate(DateTime dateTime) {
+  final today = DateTime.now();
+  final difference = dateTime.difference(today);
+
+  return switch (difference) {
+    Duration(inDays: 0) => 'today',
+    Duration(inDays: 1) => 'tomorrow',
+    Duration(inDays: -1) => 'yesterday',
+    Duration(inDays: final days) when days > 7 =>
+      '${days ~/ 7} weeks from now', // Add from here
+    Duration(inDays: final days) when days < -7 =>
+      '${days.abs() ~/ 7} weeks ago', // to here.
+    Duration(inDays: final days, isNegative: true) => '${days.abs()} days ago',
+    Duration(inDays: final days) => '$days days from now',
+  };
+}
+
 class DocumentApp extends StatelessWidget {
   const DocumentApp({super.key});
 
@@ -30,6 +47,7 @@ class DocumentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (title, modified: modified) = document.metadata;
+    final formattedModifiedDate = formatDate(modified);
     final blocks = document.getBlocks();
 
     return Scaffold(
@@ -39,7 +57,7 @@ class DocumentScreen extends StatelessWidget {
       body: Column(
         children: [
           Center(
-            child: Text('Last modified at $modified'),
+            child: Text('Last modified: $formattedModifiedDate'),
           ),
           Expanded(
             child: ListView.builder(
